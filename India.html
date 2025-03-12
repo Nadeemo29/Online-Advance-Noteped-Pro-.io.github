@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance Notepad Pro+</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ff9900;
+            padding: 15px;
+            font-size: 24px;
+        }
+
+        #searchBar {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .category-container {
+            margin-top: 10px;
+        }
+
+        .category-btn {
+            background: #444;
+            border: none;
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .category-btn:hover {
+            background: #ff9900;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .note-area, .saved-notes {
+            width: 45%;
+            background: #333;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .note-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .saved-notes ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .saved-notes li {
+            background: #444;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .export-buttons {
+            margin-top: 20px;
+        }
+
+        .export-buttons button {
+            background: #ff9900;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        footer {
+            margin-top: 20px;
+            background: #111;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Advance Notepad Pro+</h1>
+        <input type="text" id="searchBar" placeholder="Search notes...">
+        
+        <div class="category-container">
+            <button class="category-btn" data-category="all">All</button>
+            <button class="category-btn" data-category="work">Work</button>
+            <button class="category-btn" data-category="personal">Personal</button>
+            <button class="category-btn" data-category="ideas">Ideas</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="note-area">
+            <textarea id="noteInput" placeholder="Start writing..."></textarea>
+            <div class="note-options">
+                <select id="categorySelect">
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                    <option value="ideas">Ideas</option>
+                </select>
+                <button id="saveNote">Save Note</button>
+            </div>
+        </div>
+
+        <div class="saved-notes">
+            <h2>Saved Notes</h2>
+            <ul id="notesList"></ul>
+        </div>
+    </div>
+
+    <div class="export-buttons">
+        <button id="exportTXT">Export as TXT</button>
+        <button id="exportPDF">Export as PDF</button>
+    </div>
+
+    <!-- Language Toggle Button -->
+    <button onclick="toggleLanguage()">English / हिंदी</button>
+
+    <!-- English Description -->
+    <p id="english-text">
+        Welcome to <strong>Advance Notepad Pro+</strong>, your perfect tool for creating, organizing, and managing notes efficiently.  
+        Save your important thoughts, work ideas, and personal notes with a single click.  
+        You can <strong>export notes as TXT or PDF</strong> and keep them organized in different categories like Work, Personal, and Ideas.  
+        The <strong>search feature</strong> allows you to find your notes instantly.  
+        Experience the <strong>best note-taking tool</strong> with a clean UI and smooth functionality.  
+    </p>
+
+    <!-- Hindi Description (Hidden by Default) -->
+    <p id="hindi-text" style="display: none;">
+        <strong>एडवांस नोटपैड प्रो+</strong> में आपका स्वागत है, जो आपके <strong>महत्वपूर्ण नोट्स को सुरक्षित और व्यवस्थित</strong> करने के लिए एक बेहतरीन टूल है।  
+        आप अपने <strong>काम, व्यक्तिगत विचार, और नए आइडिया</strong> आसानी से सेव कर सकते हैं।  
+        यह टूल आपको <strong>TXT और PDF फॉर्मेट में नोट्स एक्सपोर्ट करने</strong> की सुविधा देता है।  
+        आप अपने नोट्स को <strong>विभिन्न श्रेणियों (Work, Personal, Ideas) में व्यवस्थित</strong> कर सकते हैं।  
+        इसमें दिया गया <strong>सर्च फीचर</strong> आपकी नोट्स को तुरंत ढूंढने में मदद करता है।  
+        यह <strong>स्मूद और क्लीन यूजर इंटरफेस</strong> वाला एक शानदार नोटपैड टूल है।  
+    </p>
+
+    <footer>
+        <p>Welcome to Advance Notepad Pro+. Save, organize, and export your notes easily.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const saveBtn = document.getElementById("saveNote");
+            const noteInput = document.getElementById("noteInput");
+            const categorySelect = document.getElementById("categorySelect");
+            const notesList = document.getElementById("notesList");
+            const categoryButtons = document.querySelectorAll(".category-btn");
+
+            let notes = [];
+
+            saveBtn.addEventListener("click", function () {
+                const noteText = noteInput.value.trim();
+                const noteCategory = categorySelect.value;
+
+                if (noteText === "") {
+                    alert("Please enter a note!");
+                    return;
+                }
+
+                const noteObject = { text: noteText, category: noteCategory };
+                notes.push(noteObject);
+                renderNotes("all");
+
+                noteInput.value = "";
+            });
+
+            categoryButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const category = this.getAttribute("data-category");
+                    renderNotes(category);
+                });
+            });
+
+            function renderNotes(filterCategory) {
+                notesList.innerHTML = "";
+
+                notes.forEach(note => {
+                    if (filterCategory === "all" || note.category === filterCategory) {
+                        const listItem = document.createElement("li");
+                        listItem.innerHTML = `
+                            ${note.text} 
+                            <span>(${note.category})</span>
+                            <button class="delete-btn">❌</button>
+                        `;
+
+                        notesList.appendChild(listItem);
+
+                        listItem.querySelector(".delete-btn").addEventListener("click", function () {
+                            notes = notes.filter(n => n.text !== note.text);
+                            renderNotes(filterCategory);
+                        });
+                    }
+                });
+            }
+
+            document.getElementById("exportTXT").addEventListener("click", function () {
+                let text = "";
+                notes.forEach(note => {
+                    text += `${note.text} (${note.category})\n`;
+                });
+
+                const blob = new Blob([text], { type: "text/plain" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "notes.txt";
+                a.click();
+            });
+        });
+
+        function toggleLanguage() {
+            var englishText = document.getElementById("english-text");
+            var hindiText = document.getElementById("hindi-text");
+
+            englishText.style.display = englishText.style.display === "none" ? "block" : "none";
+            hindiText.style.display = hindiText.style.display === "none" ? "block" : "none";
+        }
+    </script>
+
+</body>
+</html>
